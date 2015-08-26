@@ -4,8 +4,8 @@
   Heading Block
 */
 
+var _ = require('../lodash');
 var Block = require('../block');
-var stToHTML = require('../to-html');
 
 module.exports = Block.extend({
 
@@ -13,7 +13,7 @@ module.exports = Block.extend({
 
   title: function(){ return i18n.t('blocks:heading:title'); },
 
-  editorHTML: '<h2 class="st-required st-text-block st-text-block--heading" contenteditable="true"></h2>',
+  editorHTML: '<h2 class="st-text-block st-text-block--heading" data-ref="text" data-richtext="true"></h2>',
 
   scribeOptions: { 
     allowBlockElements: false,
@@ -24,11 +24,8 @@ module.exports = Block.extend({
 
   icon_name: 'heading',
 
-  loadData: function(data){
-    if (this.options.convertFromMarkdown && data.format !== "html") {
-      this.setTextBlockHTML(stToHTML(data.text, this.type));
-    } else {
-      this.setTextBlockHTML(data.text);
-    }
-  }
+  onBlockRender: function() {
+    if (_.isEmpty(this.editors)) { this.loadMixinData(this._getData()); }
+  },
+  
 });

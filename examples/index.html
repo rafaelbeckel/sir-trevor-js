@@ -43,6 +43,14 @@
       SirTrevor.setBlockOptions("Text", {
         onBlockRender: function() {
           console.log("Text block rendered");
+        },
+        options: {
+          formatBar: {
+            available: {
+              'default': ['italic'],
+              'caption': ['bold']
+            }
+          }
         }
       });
 

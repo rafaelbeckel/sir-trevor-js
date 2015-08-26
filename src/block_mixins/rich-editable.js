@@ -2,24 +2,35 @@
 
 var _ = require('../lodash');
 var ScribeInterface = require('../scribe-interface');
+var stToHTML = require('../to-html');
 
 module.exports = {
-  mixinName: 'MultiEditable',
+  mixinName: 'RichEditor',
 
-  initializeMultiEditable: function() {
+  finder: '[data-richtext]',
+
+  initializeRichEditor: function() {
     this.editors = {};
   },
 
-  newTextEditor: function(template, content) {
-    // render template outside of dom
-    var wrapper = document.createElement('div');
-    wrapper.innerHTML = template;
-
-    var editor = wrapper.querySelector('.st-block__editor');
+  newTextEditor: function(template_or_node, content) {
+    var editor;
+    if (template_or_node.nodeType) {
+      editor = template_or_node;
+    } else {
+      // render template outside of dom
+      var wrapper = document.createElement('div');
+      wrapper.innerHTML = template_or_node;
+      editor = wrapper.querySelector(this.finder);
+    }
+    
     var id = _.uniqueId('editor-');
     editor.dataset.editorId = id;
-    editor.addEventListener('keyup', this.getSelectionForFormatter);
-    editor.addEventListener('mouseup', this.getSelectionForFormatter);
+    
+    if (editor.getAttribute('data-formattable')) {
+      editor.addEventListener('keyup', this.getSelectionForFormatter.bind(this, editor));
+      editor.addEventListener('mouseup', this.getSelectionForFormatter.bind(this, editor));
+    }
 
     var configureScribe =
       _.isFunction(this.configureScribe) ? this.configureScribe.bind(this) : null;
@@ -30,7 +41,7 @@ module.exports = {
     scribe.setContent(content);
 
     var editorObject = {
-      node: wrapper.removeChild(wrapper.firstChild),
+      node: wrapper ? wrapper.removeChild(wrapper.firstChild) : null,
       el: editor,
       scribe: scribe,
       id: id
@@ -91,4 +102,18 @@ module.exports = {
       this.getCurrentScribeInstance(), cmdName
     );
   },
+
+  getSelectionForFormatter: function() {},
+
+  loadMixinData: function(data) {
+    var content;
+    [].forEach.call(this.inner.querySelectorAll(this.finder), (el) => {
+      content = data[el.getAttribute('data-ref')] || "";
+      if (this.options.convertFromMarkdown && data.format !== "html") {
+        content = stToHTML(content, this.type);
+      }
+      this.newTextEditor(el, content);
+    });
+  },
+
 };

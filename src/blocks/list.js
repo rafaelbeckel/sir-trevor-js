@@ -53,7 +53,7 @@ module.exports = Block.extend({
   type: 'list',
   title: function() { return i18n.t('blocks:list:title'); },
   icon_name: 'list',
-  multi_editable: true,
+  formattable: true,
 
   scribeOptions: { 
     allowBlockElements: false,
@@ -67,7 +67,7 @@ module.exports = Block.extend({
   },
 
   editorHTML: '<ul class="st-list-block__list"></ul>',
-  listItemEditorHTML: '<li class="st-list-block__item"><div class="st-list-block__editor st-block__editor"></div></li>',
+  listItemEditorHTML: '<li class="st-list-block__item"><div class="st-list-block__editor" data-richtext="true" data-formattable="true"></div></li>',
 
   initialize: function() {
     this.editorIds = [];
