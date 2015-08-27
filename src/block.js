@@ -28,6 +28,7 @@ Block.prototype.constructor = Block;
 Object.assign(Block.prototype, SimpleBlock.fn, require('./block-validations'), {
 
   bound: [
+    "_onFocus", "_onBlur",
     "onDrop", "onDeleteClick",
     "onBlockRender", "onDeleteConfirm"
   ],
@@ -148,6 +149,8 @@ Object.assign(Block.prototype, SimpleBlock.fn, require('./block-validations'), {
 
     var data = {};
 
+    data = Object.assign({}, data, this.saveRichEditableFields());
+
     // Add any inputs to the data attr
     var matcher = [
       'input:not([class="st-paste-block"])',
@@ -165,6 +168,37 @@ Object.assign(Block.prototype, SimpleBlock.fn, require('./block-validations'), {
 
     return data;
   },
+
+  /* Generic implementation to tell us when the block is active */
+  focus: function() {
+    [].forEach.call(this.inner.querySelectorAll(this.richEditorFinder), (el) => {
+      el.focus();
+    });
+  },
+
+  blur: function() {
+    [].forEach.call(this.inner.querySelectorAll(this.richEditorFinder), (el) => {
+      el.blur();
+    });
+  },
+
+  onFocus: function() {
+    this.getTextBlock().bind('focus', this._onFocus);
+  },
+
+  onBlur: function() {
+    this.getTextBlock().bind('blur', this._onBlur);
+  },
+
+  /*
+   * Event handlers
+   */
+
+  _onFocus: function() {
+    this.trigger('blockFocus', this.el);
+  },
+
+  _onBlur: function() {},
 
   onBlockRender: function() {
     this.focus();

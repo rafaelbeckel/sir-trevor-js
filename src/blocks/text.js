@@ -21,7 +21,9 @@ module.exports = Block.extend({
   icon_name: 'text',
 
   onBlockRender: function() {
-    if (_.isEmpty(this.editors)) { this.loadMixinData(this._getData()); }
+    var data = this._getData();
+    this.loadRichEditableFields(data);
+    this.focus();
   },
-  
+
 });

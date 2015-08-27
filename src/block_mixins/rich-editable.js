@@ -3,11 +3,12 @@
 var _ = require('../lodash');
 var ScribeInterface = require('../scribe-interface');
 var stToHTML = require('../to-html');
+var TextField = require('../blocks/primitives/text-field');
 
 module.exports = {
   mixinName: 'RichEditor',
 
-  finder: '[data-richtext]',
+  richEditorFinder: '[data-richtext]',
 
   initializeRichEditor: function() {
     this.editors = {};
@@ -21,7 +22,7 @@ module.exports = {
       // render template outside of dom
       var wrapper = document.createElement('div');
       wrapper.innerHTML = template_or_node;
-      editor = wrapper.querySelector(this.finder);
+      editor = wrapper.querySelector(this.richEditorFinder);
     }
     
     var id = _.uniqueId('editor-');
@@ -105,15 +106,32 @@ module.exports = {
 
   getSelectionForFormatter: function() {},
 
-  loadMixinData: function(data) {
-    var content;
-    [].forEach.call(this.inner.querySelectorAll(this.finder), (el) => {
-      content = data[el.getAttribute('data-ref')] || "";
-      if (this.options.convertFromMarkdown && data.format !== "html") {
-        content = stToHTML(content, this.type);
+  loadRichEditableFields: function(data) {
+    var content, textField;
+    [].forEach.call(this.inner.querySelectorAll(this.richEditorFinder), (el) => {
+      content = "";
+      if (data) {
+        content = data[el.getAttribute('data-ref') || "text"] || "";
+        if (this.options.convertFromMarkdown && data.format !== "html") {
+          content = stToHTML(content, this.type);
+        }
       }
-      this.newTextEditor(el, content);
+      textField = new TextField(el, content, this.options, this);
+      this.editors[textField.ref] = textField;
     });
+    textField = content = null;
   },
+
+  saveRichEditableFields: function() {
+    var data = {}, textField;
+    Object.keys(this.editors).forEach( (ref) => {
+      textField = this.editors[ref];
+      data[textField.ref] = textField.scribe.getContent();
+    });
+
+    textField = null;
+
+    return data;
+  }
 
 };

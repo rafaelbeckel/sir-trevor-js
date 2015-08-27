@@ -15,17 +15,21 @@ module.exports = Block.extend({
 
   editorHTML: '<h2 class="st-text-block st-text-block--heading" data-ref="text" data-richtext="true"></h2>',
 
-  scribeOptions: { 
-    allowBlockElements: false,
-    tags: {
-      p: false
+  scribeOptions: {
+    default: { 
+      allowBlockElements: false,
+      tags: {
+        p: false
+      }
     }
   },
 
   icon_name: 'heading',
 
   onBlockRender: function() {
-    if (_.isEmpty(this.editors)) { this.loadMixinData(this._getData()); }
+    var data = this._getData();
+    this.loadRichEditableFields(data);
+    this.focus();
   },
   
 });

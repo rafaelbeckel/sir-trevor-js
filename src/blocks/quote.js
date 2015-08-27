@@ -10,7 +10,7 @@ var Block = require('../block');
 var stToHTML = require('../to-html');
 
 var template = _.template([
-  '<blockquote class="st-required st-text-block st-block__editor" data-richtext="true" data-formattable="true"></blockquote>',
+  '<blockquote class="st-required st-text-block" data-richtext="true" data-formattable="true"></blockquote>',
   '<label class="st-input-label"> <%= i18n.t("blocks:quote:credit_field") %></label>',
   '<input maxlength="140" name="cite" placeholder="<%= i18n.t("blocks:quote:credit_field") %>"',
   ' class="st-input-string st-required js-cite-input" type="text" />'
@@ -28,11 +28,11 @@ module.exports = Block.extend({
     return template(this);
   },
 
-  loadData: function(data){
-    this.querySelector('.js-cite-input').value = data.cite;
+  onBlockRender: function() {
+    var data = this._getData();
+    this.loadRichEditableFields(data);
+    this.$('.js-cite-input').val(data.cite);
+    this.focus();
   },
 
-  onBlockRender: function() {
-    if (_.isEmpty(this.editors)) { this.loadMixinData(this._getData()); }
-  },
 });
